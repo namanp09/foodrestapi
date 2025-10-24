@@ -1,3 +1,4 @@
+<img width="1440" height="900" alt="Screenshot 2025-10-24 at 10 33 51 PM" src="https://github.com/user-attachments/assets/44dd2811-a86d-4eb7-9684-24519c2cf8a2" />
 # Foodies API
 
 This is a Spring Boot REST API for an online food delivery application.
