@@ -1,98 +1,207 @@
 # Foodies API
 
-A robust Spring Boot REST API designed for an online food delivery application. This API handles core functionalities such as user management, authentication, food item management, shopping cart operations, and order processing, including payment integration.
+This is a Spring Boot REST API for an online food delivery application.
 
-## Features
+## Description
 
-*   **User Management:** Register, authenticate, and manage user profiles.
-*   **Authentication & Authorization:** Secure API endpoints using JWT (JSON Web Tokens) and Spring Security.
-*   **Food Management:** Create, retrieve, update, and delete food items.
-*   **Cart Management:** Add, update, and remove items from a user's shopping cart.
-*   **Order Processing:** Create and manage food orders.
-*   **Payment Integration:** Seamless integration with Razorpay for payment processing.
-*   **Cloud Storage:** Integration with AWS S3 for storing images or other static assets.
-*   **Data Validation:** Robust input validation for all API requests.
+This API provides the backend services for a food delivery application. It includes functionalities for user authentication, managing food items, handling user carts, and processing orders with payments.
 
 ## Technologies Used
 
-*   **Java 17**
-*   **Spring Boot** (3.5.6)
-*   **Maven**
-*   **MongoDB:** NoSQL database for data persistence.
-*   **Spring Security:** For authentication and authorization.
-*   **JWT (JSON Web Tokens):** For secure API access.
-*   **AWS S3 SDK:** For cloud storage operations.
-*   **Razorpay Java SDK:** For payment gateway integration.
-*   **Lombok:** To reduce boilerplate code.
-
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-### Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-*   **Java Development Kit (JDK) 17**
-*   **Apache Maven**
-*   **MongoDB:** A running instance of MongoDB. You can install it locally or use a cloud-based service like MongoDB Atlas.
-*   **AWS Account:** With an S3 bucket configured and appropriate access keys.
-*   **Razorpay Account:** With API keys (Key ID and Key Secret).
-
-### Installation
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/foodiesapi.git
-    cd foodiesapi
-    ```
-
-2.  **Build the project:**
-    ```bash
-    mvn clean install
-    ```
-
-### Configuration
-
-Create an `application.properties` (or `application.yml`) file in `src/main/resources/` and configure the following properties:
-
-```properties
-# MongoDB Configuration
-spring.data.mongodb.uri=mongodb://localhost:27017/foodiesdb
-
-# JWT Configuration
-application.security.jwt.secret-key=YOUR_SUPER_SECRET_JWT_KEY_HERE
-application.security.jwt.expiration=86400000 # 24 hours in milliseconds
-application.security.jwt.refresh-token.expiration=604800000 # 7 days in milliseconds
-
-# AWS S3 Configuration
-cloud.aws.credentials.access-key=YOUR_AWS_ACCESS_KEY
-cloud.aws.credentials.secret-key=YOUR_AWS_SECRET_KEY
-cloud.aws.region.static=YOUR_AWS_REGION # e.g., us-east-1
-cloud.aws.s3.bucket-name=YOUR_S3_BUCKET_NAME
-
-# Razorpay Configuration
-razorpay.key.id=YOUR_RAZORPAY_KEY_ID
-razorpay.key.secret=YOUR_RAZORPAY_KEY_SECRET
-```
-**Note:** Replace placeholder values with your actual credentials and configurations.
-
-### Running the Application
-
-You can run the Spring Boot application using Maven:
-
-```bash
-mvn spring-boot:run
-```
-
-The application will start on `http://localhost:8080` by default.
+*   **Framework:** Spring Boot
+*   **Language:** Java 17
+*   **Database:** MongoDB
+*   **Authentication:** Spring Security with JWT
+*   **Payment Gateway:** Razorpay
+*   **File Storage:** AWS S3
+*   **Build Tool:** Maven
 
 ## API Endpoints
 
-The API provides various endpoints for managing food delivery operations. Here's a high-level overview of the main categories:
+### Authentication
 
-*   `/api/auth`: User registration and authentication.
-*   `/api/users`: User-related operations (e.g., profile management).
-*   `/api/foods`: CRUD operations for food items.
-*   `/api/carts`: Manage items in the shopping cart.
-*   `/api/orders`: Create and view orders.
+*   `POST /api/login`: Authenticate a user and get a JWT token.
+
+    **Request Body:**
+    ```json
+    {
+        "email": "user@example.com",
+        "password": "password"
+    }
+    ```
+
+    **Response Body:**
+    ```json
+    {
+        "email": "user@example.com",
+        "token": "<JWT_TOKEN>"
+    }
+    ```
+
+### Users
+
+*   `POST /api/register`: Register a new user.
+
+    **Request Body:**
+    ```json
+    {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "password": "password"
+    }
+    ```
+
+    **Response Body:**
+    ```json
+    {
+        "id": "<USER_ID>",
+        "name": "John Doe",
+        "email": "john.doe@example.com"
+    }
+    ```
+
+### Foods
+
+*   `POST /api/foods`: Add a new food item with an image.
+
+    **Request:**
+
+    *   This is a multipart request.
+    *   Part 1 (food): A JSON object with the following structure:
+        ```json
+        {
+            "name": "Pizza",
+            "description": "Delicious pizza",
+            "price": 10.99,
+            "category": "Italian"
+        }
+        ```
+    *   Part 2 (file): The food image file.
+
+    **Response Body:**
+    ```json
+    {
+        "id": "<FOOD_ID>",
+        "name": "Pizza",
+        "description": "Delicious pizza",
+        "price": 10.99,
+        "category": "Italian",
+        "imageUrl": "<IMAGE_URL>"
+    }
+    ```
+
+*   `GET /api/foods`: Get a list of all food items.
+*   `GET /api/foods/{id}`: Get a specific food item by its ID.
+*   `DELETE /api/foods/{id}`: Delete a food item by its ID.
+
+### Cart
+
+*   `POST /api/cart`: Add an item to the cart.
+
+    **Request Body:**
+    ```json
+    {
+        "foodId": "<FOOD_ID>"
+    }
+    ```
+
+*   `GET /api/cart`: Get the user's cart.
+*   `DELETE /api/cart`: Clear the user's cart.
+*   `POST /api/cart/remove`: Remove an item from the cart.
+
+    **Request Body:**
+    ```json
+    {
+        "foodId": "<FOOD_ID>"
+    }
+    ```
+
+### Orders
+
+*   `POST /api/orders/create`: Create a new order and process payment.
+
+    **Request Body:**
+    ```json
+    {
+        "orderedItems": [
+            {
+                "foodId": "<FOOD_ID>",
+                "quantity": 1,
+                "price": 10.99,
+                "category": "Italian",
+                "imageUrl": "<IMAGE_URL>",
+                "name": "Pizza",
+                "description": "Delicious pizza"
+            }
+        ],
+        "userAddress": "123 Main St",
+        "amount": 10.99,
+        "orderStatus": "Pending",
+        "phoneNumber": "1234567890",
+        "email": "user@example.com"
+    }
+    ```
+
+*   `POST /api/orders/verify`: Verify the payment for an order.
+*   `GET /api/orders`: Get the orders for the current user.
+*   `DELETE /api/orders/{orderId}`: Delete an order by its ID.
+*   `GET /api/orders/all`: Get all orders (for admin).
+*   `PATCH /api/orders/status/{orderId}`: Update the status of an order (for admin).
+
+## Getting Started
+
+### Prerequisites
+
+*   Java 17
+*   Maven
+*   MongoDB
+*   AWS S3 Bucket
+*   Razorpay Account
+
+### Configuration
+
+1.  Open the `application.properties` file in `src/main/resources` and update the following properties with your credentials:
+
+    ```properties
+    # MongoDB Configuration
+    spring.data.mongodb.uri=<YOUR_MONGODB_URI>
+
+    # AWS S3 Configuration
+    aws.accessKeyId=<YOUR_AWS_ACCESS_KEY>
+    aws.secretKey=<YOUR_AWS_SECRET_KEY>
+    aws.s3.bucket.name=<YOUR_AWS_S3_BUCKET_NAME>
+
+    # Razorpay Configuration
+    razorpay.key.id=<YOUR_RAZORPAY_KEY_ID>
+    razorpay.key.secret=<YOUR_RAZORPAY_KEY_SECRET>
+
+    # JWT Configuration
+    jwt.secret.key=<YOUR_JWT_SECRET_KEY>
+    ```
+
+### Installation
+
+1.  Clone the repository:
+    ```sh
+    git clone https://github.com/your-username/foodiesapi.git
+    ```
+2.  Build the project using Maven:
+    ```sh
+    mvn clean install
+    ```
+
+### Running the Application
+
+```sh
+mvn spring-boot:run
+```
+
+### Running Tests
+
+```sh
+mvn test
+```
+
+## Usage
+
+You can use a tool like Postman or curl to interact with the API.
